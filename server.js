@@ -1,38 +1,52 @@
+// Import the express module to create and configure the HTTP server.
 var express = require('express')
+// Import the CORS middleware to enable Cross-Origin Resource Sharing for our server.
 const cors = require('cors')
+// Import the request module to make HTTP requests from the server.
 const request = require('request');
+// Destructure exec from child_process module to run shell commands from Node.js.
 const { exec } = require('child_process')
 
 // Change this to load local config
+// Load the sample configuration file. Replace with './config' if a custom configuration is available.
 var config = require('./config.sample');
 
+// Import the file system module to interact with the file system.
 const fs = require('fs')
 if (fs.existsSync('./config.js')) {
 	//Load custom config file
 	config = require('./config');
 }
 
+// Import the Sonos module to interact with Sonos speakers on the network.
 var Sonos = require('sonos')
 var sonosDiscover = null
 var sonos = null
 
+// Import the netatmo module to interact with Netatmo weather station and other devices.
 var netatmo = require('netatmo')
 var netatmoapi = null
 if (config.netatmo.client_id) {
 	netatmoapi = new netatmo(config.netatmo);
 }
 
+// Import the yahoo-finance module to fetch financial data.
 var yahooFinance = require('yahoo-finance');
+// Import the NewsAPI module to fetch news articles using the NewsAPI.
 var NewsAPI = require('newsapi')
 var newsapi = null
 if (config.newsapi.key) {
 	newsapi = new NewsAPI(config.newsapi.key)
 }
 
+// Import the node-ical module to parse iCal (.ics) files.
 const ical = require('node-ical');
+// Import the moment-timezone module to work with dates and times in various time zones.
 const moment = require('moment-timezone')
 
+// Initialize the express application.
 var app = express()
+// Start the server and listen on the port defined in the configuration file.
 const server = app.listen(config.web.socket, function () {
 	console.log('Server listening on port ' + config.web.socket + '.')
 })
@@ -69,6 +83,7 @@ Sonos.DeviceDiscovery().once('DeviceAvailable', (device) => {
 	})
 });
 
+// Import the Tibber API module to interact with the Tibber platform for energy data.
 const Tibber = require('tibber-api')
 const tibberQuery = new Tibber.TibberQuery(config.tibber1);
 const tibberQuery2 = new Tibber.TibberQuery(config.tibber2);
@@ -118,6 +133,7 @@ var initTibberFeed = function () {
 };
 
 // Initiate internal websocket
+// Initialize socket.io with the server instance to enable real-time bidirectional event-based communication.
 const io = require('socket.io')(server);
 io.set('origins', ['http://homeboard.local:8080', 'http://localhost:8080']);
 io.on('connection', function (socket) {
@@ -446,6 +462,7 @@ if (netatmoapi) {
 }
 
 // Motion sensor to enable screen
+// Import the rpi-gpio module to interact with the GPIO pins of the Raspberry Pi.
 var gpio = require('rpi-gpio')
 var last_motion_state = false
 var motion_value = 0
@@ -526,6 +543,7 @@ gpio.setup(11, gpio.DIR_IN, gpio.EDGE_BOTH)
 // }).catch(err => { console.log('Hue error occurred %j', err) })
 
 
+// Define the path to the directory that will serve as the web root.
 let webpath = 'www';
 if (fs.existsSync(webpath)) {
 	// Check if running already
