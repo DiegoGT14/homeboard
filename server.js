@@ -2,6 +2,8 @@ var express = require('express')
 const cors = require('cors')
 const request = require('request');
 const { exec } = require('child_process')
+
+// Change this to load local config
 var config = require('./config.sample');
 
 const fs = require('fs')
