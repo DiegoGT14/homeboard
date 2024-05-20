@@ -3,7 +3,8 @@ const cors = require('cors')
 const request = require('request');
 const { exec } = require('child_process')
 
-// Change this to load local config
+// Load configuration from the sample file initially.
+// If a local configuration file exists, it will be loaded subsequently to override these defaults.
 var config = require('./config.sample');
 
 const fs = require('fs')
@@ -37,7 +38,8 @@ const server = app.listen(config.web.socket, function () {
 	console.log('Server listening on port ' + config.web.socket + '.')
 })
 
-// Discover sonos device IPs
+// Discover Sonos devices on the network and listen for the 'DeviceAvailable' event.
+// Once a device is found, create a new Sonos instance for the device host.
 Sonos.DeviceDiscovery().once('DeviceAvailable', (device) => {
 	sonosDiscover = new Sonos.Sonos(device.host)
 	sonosDiscover.getAllGroups().then(groups => {
@@ -104,7 +106,8 @@ var initTibberFeed = function () {
 			console.log('Connected to Tibber');
 		});
 		tibberFeed.on('connection_ack', () => {
-			// console.log('Connection acknowledged!');
+			// Log a message when the connection to the Tibber feed is acknowledged.
+// This is useful for debugging and ensuring that connections are being established properly.
 		});
 		tibberFeed.on('disconnected', () => {
 			console.log('Disconnected from Tibber!');
@@ -268,13 +271,15 @@ io.on('connection', function (socket) {
 		sonos.flush()
 		sonos.setPlayMode('SHUFFLE')
 		sonos.play(uri).then(success => {
-			// console.log('Playing uri')
+			// Log a message when a URI is being played on the Sonos device.
+// This is useful for debugging and monitoring the URIs being requested for playback.
 		}).catch(err => { console.log('Error occurred %j', err) })
 	})
 	socket.on('playRadio', function (station) {
 		console.log('Play sonos radio ', station)
 		sonos.playTuneinRadio(station[0], station[1]).then(success => {
-			// console.log('Playing radio')
+			// Log a message when a radio station is being played on the Sonos device.
+// This helps in tracking which radio stations are being accessed and any issues related to them.
 		}).catch(err => { console.log('Error occurred %j', err) })
 	})
 	socket.on('setLights', function (mode) {
@@ -385,7 +390,8 @@ io.on('connection', function (socket) {
 	socket.on('setthermo', function (temp) {
 		console.log('Set thermostat ', temp)
 		tibberQuery2.query("mutation { me { home(id: \"" + config.tibber1.homeId + "\") { thermostat(id: \"" + config.tibber2.thermostat + "\") { setState(comfortTemperature: " + temp + ") }    }  } }").then(res => {
-			// console.log(JSON.stringify(res, null, 2))
+			// Log the response from setting the thermostat state.
+// This is useful for debugging and ensuring that the thermostat state changes are being processed correctly.
 		})
 	})
 
@@ -393,7 +399,8 @@ io.on('connection', function (socket) {
 
 // Get weather token
 var getWeatherToken = function (callback) {
-	//Fetch Netatmo public access token
+	// Fetch the public access token from Netatmo for accessing weather data.
+// This token is necessary for making authenticated requests to the Netatmo API.
 	return request('https://weathermap.netatmo.com/', (err, res, body) => {
 		if (err) { return console.log(err) }
 		if (body.indexOf('accessToken') > -1) {
