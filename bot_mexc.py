@@ -64,6 +64,24 @@ class MEXCObserver:
             time.sleep(30)
 
 if __name__ == "__main__":
+    # Truco para que Render no apague el bot
+    import threading
+    from http.server import HTTPServer, BaseHTTPRequestHandler
+
+    class HealthCheck(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"OK")
+
+    def run_health_check():
+        port = int(os.environ.get("PORT", 10000))
+        httpd = HTTPServer(('0.0.0.0', port), HealthCheck)
+        httpd.serve_forever()
+
+    # Inicia el servidor de "saludo" en un hilo aparte
+    threading.Thread(target=run_health_check, daemon=True).start()
+    
+    # Inicia el escáner normal
     observer = MEXCObserver()
     observer.run()
-
